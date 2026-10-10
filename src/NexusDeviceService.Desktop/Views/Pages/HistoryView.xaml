@@ -1,0 +1,26 @@
+<UserControl x:Class="NexusDeviceService.Desktop.Views.Pages.HistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:NexusDeviceService.Desktop.ViewModels.Pages"
+             xmlns:ctrl="clr-namespace:NexusDeviceService.Desktop.Controls"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:HistoryViewModel}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
+        <StackPanel MaxWidth="960">
+            <!-- Header -->
+            <StackPanel Margin="0,0,0,20">
+                <TextBlock Text="Service Session Audit History" Style="{StaticResource TextHeader}"/>
+                <TextBlock Text="Chronological record of hardware connections, diagnostic interrogations, and service sessions." Style="{StaticResource TextCaption}" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <!-- State: Empty State when no history is present -->
+            <ctrl:StateView Title="No Session History Recorded"
+                            Description="Historical service sessions will appear here as device operations and diagnostic queries are conducted."
+                            IconGeometry="{StaticResource GeometryHistory}"
+                            IconBrush="{DynamicResource BrushTextMuted}" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

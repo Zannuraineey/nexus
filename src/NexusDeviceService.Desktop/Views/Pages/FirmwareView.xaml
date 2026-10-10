@@ -1,0 +1,148 @@
+<UserControl x:Class="NexusDeviceService.Desktop.Views.Pages.FirmwareView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:NexusDeviceService.Desktop.ViewModels.Pages"
+             xmlns:ctrl="clr-namespace:NexusDeviceService.Desktop.Controls"
+             xmlns:conv="clr-namespace:NexusDeviceService.Desktop.Converters"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:FirmwareViewModel}">
+
+    <UserControl.Resources>
+        <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
+        <StackPanel MaxWidth="980">
+            <!-- Header -->
+            <StackPanel Margin="0,0,0,20">
+                <TextBlock Text="Firmware Image Validation &amp; Manifest Inspector" Style="{StaticResource TextHeader}"/>
+                <TextBlock Text="Cryptographic signature verification, payload hash calculation, and hardware compatibility checks (Non-Destructive)." 
+                           Style="{StaticResource TextCaption}" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <!-- Selection Card -->
+            <Border Style="{StaticResource CardStandard}" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="PACKAGE SELECTION &amp; TARGET HARDWARE" Style="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,12"/>
+                    
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding ImagePath, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource TextBoxMonospace}"
+                                 ToolTip="Enter full path to .nfp, .zip, .mbn, or .bin package" />
+                        <Button Grid.Column="1"
+                                Content="Validate Package"
+                                Command="{Binding ValidatePackageCommand}"
+                                Style="{StaticResource ButtonPrimary}"
+                                Margin="8,0,0,0" />
+                    </Grid>
+
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Target Device Comparison:" VerticalAlignment="Center" Margin="0,0,12,0" Foreground="{DynamicResource BrushTextSecondary}" />
+                        <ComboBox Grid.Column="1"
+                                  ItemsSource="{Binding AvailableDevices}"
+                                  SelectedItem="{Binding SelectedDevice}"
+                                  DisplayMemberPath="DisplayName"
+                                  Height="36" />
+                        <Button Grid.Column="2"
+                                Content="Clear"
+                                Command="{Binding ClearCommand}"
+                                Style="{StaticResource ButtonSecondary}"
+                                Margin="8,0,0,0" />
+                    </Grid>
+
+                    <TextBlock Text="{Binding StatusMessage}"
+                               Style="{StaticResource TextCaption}"
+                               Foreground="{DynamicResource BrushAccent}"
+                               Margin="0,4,0,0" />
+                </StackPanel>
+            </Border>
+
+            <!-- Inspection Result Card (Visible when ValidationResult != null) -->
+            <Border Style="{StaticResource CardStandard}" Margin="0,0,0,20"
+                    Visibility="{Binding ValidationResult, Converter={StaticResource NullToVisibilityConverter}, FallbackValue=Collapsed}">
+                <StackPanel>
+                    <TextBlock Text="CRYPTOGRAPHIC INTEGRITY &amp; MANIFEST AUDIT" Style="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,12"/>
+
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Format:" FontWeight="SemiBold" Margin="0,0,8,0" Foreground="{DynamicResource BrushTextSecondary}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding ValidationResult.FormatType}" FontWeight="Bold" Foreground="{DynamicResource BrushTextPrimary}"/>
+                        <TextBlock Grid.Column="2" Text="File Size:" FontWeight="SemiBold" Margin="0,0,8,0" Foreground="{DynamicResource BrushTextSecondary}"/>
+                        <TextBlock Grid.Column="3" Text="{Binding ValidationResult.FileSizeBytes, StringFormat={}{0:N0} bytes}" Foreground="{DynamicResource BrushTextPrimary}"/>
+                    </Grid>
+
+                    <TextBlock Text="SHA-256 Checksum:" FontWeight="SemiBold" Foreground="{DynamicResource BrushTextSecondary}" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding ValidationResult.Sha256Checksum}" Style="{StaticResource TextBoxMonospace}" IsReadOnly="True" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="Signature Verification:" FontWeight="SemiBold" Foreground="{DynamicResource BrushTextSecondary}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding ValidationResult.SignatureDetails}" Style="{StaticResource TextCaption}" Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="Hardware Compatibility:" FontWeight="SemiBold" Foreground="{DynamicResource BrushTextSecondary}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding ValidationResult.Compatibility}" FontWeight="Bold" Margin="0,0,0,12">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource BrushWarning}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ValidationResult.IsValid}" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource BrushSuccess}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <!-- Validation Log Messages -->
+                    <TextBlock Text="Validation Audit Log:" FontWeight="SemiBold" Foreground="{DynamicResource BrushTextSecondary}" Margin="0,0,0,4"/>
+                    <ListBox ItemsSource="{Binding ValidationResult.ValidationMessages}"
+                             Background="{DynamicResource BrushSurfaceDark}"
+                             Foreground="{DynamicResource BrushTextSecondary}"
+                             FontFamily="{StaticResource FontFamilyMonospace}"
+                             Height="100" Margin="0,0,0,16"/>
+
+                    <!-- Preview & Confirmation Section -->
+                    <Border Background="{DynamicResource BrushSurfaceLight}" Padding="16" CornerRadius="6"
+                            Visibility="{Binding ValidationResult.IsValid, Converter={StaticResource BoolToVis}}">
+                        <StackPanel>
+                            <TextBlock Text="OPERATION PREVIEW &amp; ACKNOWLEDGEMENT" FontWeight="Bold" Foreground="{DynamicResource BrushAccent}" Margin="0,0,0,6"/>
+                            <TextBlock Text="Package validation completed with zero errors. All cryptographic hashes match and target hardware compatibility is verified." Style="{StaticResource TextCaption}" Margin="0,0,0,12"/>
+                            
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Safe Simulation Mode: No physical device write will be executed in this validation phase." 
+                                           VerticalAlignment="Center" Foreground="{DynamicResource BrushSuccess}" FontStyle="Italic"/>
+                                <Button Grid.Column="1"
+                                        Content="Confirm Preview"
+                                        Command="{Binding ConfirmPreviewCommand}"
+                                        Style="{StaticResource ButtonPrimary}" />
+                            </Grid>
+
+                            <TextBlock Text="Preview Acknowledged and Audited." 
+                                       Visibility="{Binding IsPreviewConfirmed, Converter={StaticResource BoolToVis}}"
+                                       Foreground="{DynamicResource BrushSuccess}" FontWeight="Bold" Margin="0,8,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

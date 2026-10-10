@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/NexusDeviceService.Application/NexusDeviceService.Application.csproj" />
+    <Project Path="src/NexusDeviceService.Desktop/NexusDeviceService.Desktop.csproj" />
+    <Project Path="src/NexusDeviceService.DeviceAbstractions/NexusDeviceService.DeviceAbstractions.csproj" />
+    <Project Path="src/NexusDeviceService.Domain/NexusDeviceService.Domain.csproj" />
+    <Project Path="src/NexusDeviceService.Infrastructure/NexusDeviceService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/NexusDeviceService.Tests/NexusDeviceService.Tests.csproj" />
+  </Folder>
+</Solution>

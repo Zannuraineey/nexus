@@ -1,0 +1,70 @@
+<UserControl x:Class="NexusDeviceService.Desktop.Views.Pages.AboutView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:NexusDeviceService.Desktop.ViewModels.Pages"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:AboutViewModel}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
+        <StackPanel MaxWidth="800">
+            <!-- Brand Card -->
+            <Border Style="{StaticResource CardStandard}" Margin="0,0,0,20">
+                <StackPanel Orientation="Horizontal" Margin="8">
+                    <!-- Brand Logo Placeholder -->
+                    <Border Width="64" Height="64"
+                            CornerRadius="{StaticResource RadiusLarge}"
+                            Background="{DynamicResource BrushSurfaceElevated}"
+                            BorderBrush="{DynamicResource BrushAccent}"
+                            BorderThickness="2"
+                            Margin="0,0,20,0">
+                        <Path Data="{StaticResource GeometryChip}"
+                              Fill="{DynamicResource BrushAccent}"
+                              Width="32" Height="32"
+                              Stretch="Uniform"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center" />
+                    </Border>
+
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding AppTitle}" Style="{StaticResource TextHeader}"/>
+                        <TextBlock Text="{Binding AppVersion}" Style="{StaticResource TextCaption}" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding Framework}" Style="{StaticResource TextCaption}" Foreground="{DynamicResource BrushStatusSuccess}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- System Info -->
+            <Border Style="{StaticResource CardStandard}" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="SYSTEM ARCHITECTURE" Style="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,12"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Workstation Host:" Style="{StaticResource TextCaption}" Margin="0,4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding MachineName}" Style="{StaticResource TextBodyStrong}" Margin="0,4"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Operating System:" Style="{StaticResource TextCaption}" Margin="0,4"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding OsInfo}" Style="{StaticResource TextBodyStrong}" Margin="0,4"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Safety Policy Notice -->
+            <Border Style="{StaticResource CardElevated}">
+                <StackPanel>
+                    <TextBlock Text="SAFETY &amp; ETHICAL POLICY" Style="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource BrushStatusWarning}" Margin="0,0,0,8"/>
+                    <TextBlock Text="{Binding SafetyPolicy}" Style="{StaticResource TextCaption}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

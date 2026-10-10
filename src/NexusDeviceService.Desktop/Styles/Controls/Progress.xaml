@@ -1,0 +1,35 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style x:Key="ProgressTrack" TargetType="ProgressBar">
+        <Setter Property="Background" Value="{DynamicResource BrushSurfaceBorderSubtle}" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushAccent}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Height" Value="6" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ProgressBar">
+                    <Border x:Name="TemplateRoot"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="3"
+                            ClipToBounds="True">
+                        <Grid x:Name="PART_Track">
+                            <Rectangle x:Name="PART_Indicator"
+                                       HorizontalAlignment="Left"
+                                       Fill="{TemplateBinding Foreground}"
+                                       RadiusX="3" RadiusY="3" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsIndeterminate" Value="True">
+                            <Setter TargetName="PART_Indicator" Property="HorizontalAlignment" Value="Stretch" />
+                            <Setter TargetName="PART_Indicator" Property="Opacity" Value="0.85" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="ProgressBar" BasedOn="{StaticResource ProgressTrack}" />
+
+</ResourceDictionary>

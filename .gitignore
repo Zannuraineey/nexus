@@ -1,0 +1,34 @@
+## Visual Studio / Build Artifacts
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+publish/
+dist/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Test Results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+## Crash Dumps
+*.dmp
+*.dump
+
+## OS Generated
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store

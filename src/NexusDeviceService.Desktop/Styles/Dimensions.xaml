@@ -1,0 +1,39 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Spacing Scale (8pt grid based with compact 4pt technician steps) -->
+    <Thickness x:Key="SpacingNone">0</Thickness>
+    <Thickness x:Key="SpacingXXS">2</Thickness>
+    <Thickness x:Key="SpacingXS">4</Thickness>
+    <Thickness x:Key="SpacingS">8</Thickness>
+    <Thickness x:Key="SpacingM">12</Thickness>
+    <Thickness x:Key="SpacingL">16</Thickness>
+    <Thickness x:Key="SpacingXL">24</Thickness>
+    <Thickness x:Key="SpacingXXL">32</Thickness>
+
+    <!-- Padding Tokens -->
+    <Thickness x:Key="PaddingButtonCompact">8,4</Thickness>
+    <Thickness x:Key="PaddingButtonStandard">14,7</Thickness>
+    <Thickness x:Key="PaddingButtonLarge">18,10</Thickness>
+    <Thickness x:Key="PaddingInput">10,6</Thickness>
+    <Thickness x:Key="PaddingCard">16</Thickness>
+    <Thickness x:Key="PaddingBadge">8,3</Thickness>
+
+    <!-- Corner Radii -->
+    <CornerRadius x:Key="RadiusSmall">4</CornerRadius>
+    <CornerRadius x:Key="RadiusMedium">6</CornerRadius>
+    <CornerRadius x:Key="RadiusLarge">8</CornerRadius>
+    <CornerRadius x:Key="RadiusPill">999</CornerRadius>
+
+    <!-- Standard Control Heights -->
+    <sys:Double x:Key="HeightControlCompact">28</sys:Double>
+    <sys:Double x:Key="HeightControlStandard">34</sys:Double>
+    <sys:Double x:Key="HeightControlLarge">40</sys:Double>
+
+    <!-- Standard Icon Dimensions -->
+    <sys:Double x:Key="IconSizeSmall">14</sys:Double>
+    <sys:Double x:Key="IconSizeMedium">18</sys:Double>
+    <sys:Double x:Key="IconSizeLarge">24</sys:Double>
+
+</ResourceDictionary>

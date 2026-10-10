@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\NexusDeviceService.Domain\NexusDeviceService.Domain.csproj" />
+    <ProjectReference Include="..\..\src\NexusDeviceService.DeviceAbstractions\NexusDeviceService.DeviceAbstractions.csproj" />
+    <ProjectReference Include="..\..\src\NexusDeviceService.Application\NexusDeviceService.Application.csproj" />
+    <ProjectReference Include="..\..\src\NexusDeviceService.Infrastructure\NexusDeviceService.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\NexusDeviceService.Desktop\NexusDeviceService.Desktop.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

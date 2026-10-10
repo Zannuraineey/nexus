@@ -1,0 +1,226 @@
+<UserControl x:Class="NexusDeviceService.Desktop.Views.Pages.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:NexusDeviceService.Desktop.ViewModels.Pages"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:SettingsViewModel}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
+        <StackPanel MaxWidth="860">
+            <!-- Header -->
+            <StackPanel Margin="0,0,0,20">
+                <TextBlock Text="Platform Settings &amp; Preferences" Style="{StaticResource TextHeader}"/>
+                <TextBlock Text="Configure user interface theme, localization preferences, communication defaults, and diagnostic retention." Style="{StaticResource TextCaption}" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <!-- Feedback Banner -->
+            <Border Background="{DynamicResource BrushSurfaceAlt}"
+                    BorderBrush="{DynamicResource BrushAccent}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="12"
+                    Margin="0,0,0,16"
+                    Visibility="{Binding StatusFeedback, Converter={x:Null}}">
+                <TextBlock Text="{Binding StatusFeedback}"
+                           Foreground="{DynamicResource BrushAccent}"
+                           FontWeight="SemiBold" />
+            </Border>
+
+            <!-- UI Theme & Language -->
+            <Border Style="{StaticResource CardStandard}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="APPEARANCE &amp; LOCALIZATION" Style="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,12"/>
+
+                    <!-- Theme -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="260" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Visual Theme" Style="{StaticResource TextBodyStrong}"/>
+                            <TextBlock Text="Applies immediately across application shell" Style="{StaticResource TextCaption}"/>
+                        </StackPanel>
+                        <ComboBox Grid.Column="1"
+                                  Width="200"
+                                  HorizontalAlignment="Left"
+                                  ItemsSource="{Binding AvailableThemes}"
+                                  SelectedItem="{Binding SelectedTheme, Mode=TwoWay}"
+                                  Style="{StaticResource InputComboBox}" />
+                    </Grid>
+
+                    <!-- Language -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="260" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Language &amp; Regional Formatting" Style="{StaticResource TextBodyStrong}"/>
+                            <TextBlock Text="Localization structure ready for multi-language packs" Style="{StaticResource TextCaption}"/>
+                        </StackPanel>
+                        <ComboBox Grid.Column="1"
+                                  Width="200"
+                                  HorizontalAlignment="Left"
+                                  ItemsSource="{Binding AvailableLanguages}"
+                                  SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}"
+                                  Style="{StaticResource InputComboBox}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Navigation & Default Workspace -->
+            <Border Style="{StaticResource CardStandard}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="WORKSPACE NAVIGATION DEFAULTS" Style="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,12"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="260" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Default Startup Workspace" Style="{StaticResource TextBodyStrong}"/>
+                            <TextBlock Text="Active screen when application initializes" Style="{StaticResource TextCaption}"/>
+                        </StackPanel>
+                        <ComboBox Grid.Column="1"
+                                  Width="200"
+                                  HorizontalAlignment="Left"
+                                  ItemsSource="{Binding AvailableDefaultPages}"
+                                  SelectedItem="{Binding DefaultPage, Mode=TwoWay}"
+                                  Style="{StaticResource InputComboBox}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Safety & Confirmation Preferences -->
+            <Border Style="{StaticResource CardStandard}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="SAFETY &amp; CONFIRMATION GATING" Style="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,12"/>
+
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="260" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Technician Confirmation" Style="{StaticResource TextBodyStrong}"/>
+                            <TextBlock Text="Require explicit confirmation checkbox before executing service-tier actions" Style="{StaticResource TextCaption}"/>
+                        </StackPanel>
+                        <CheckBox Grid.Column="1"
+                                  Content="Enforce Confirmation Prompt for Sensitive Operations"
+                                  IsChecked="{Binding RequireConfirmation, Mode=TwoWay}"
+                                  VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Communication Settings -->
+            <Border Style="{StaticResource CardStandard}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="HARDWARE &amp; MODEM COMMUNICATION" Style="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,12"/>
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="260" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Default Serial Baud Rate" Style="{StaticResource TextBodyStrong}"/>
+                            <TextBlock Text="Initial baud rate for serial/AT diagnostic sessions" Style="{StaticResource TextCaption}"/>
+                        </StackPanel>
+                        <ComboBox Grid.Column="1"
+                                  Width="200"
+                                  HorizontalAlignment="Left"
+                                  ItemsSource="{Binding AvailableBaudRates}"
+                                  SelectedItem="{Binding SelectedBaudRate, Mode=TwoWay}"
+                                  Style="{StaticResource InputComboBox}" />
+                    </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="260" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Simulation Tier Fallback" Style="{StaticResource TextBodyStrong}"/>
+                            <TextBlock Text="Permit mock virtual drivers for offline workflows" Style="{StaticResource TextCaption}"/>
+                        </StackPanel>
+                        <CheckBox Grid.Column="1"
+                                  Content="Enable Virtual Device Simulation"
+                                  IsChecked="{Binding SimulationModeEnabled, Mode=TwoWay}"
+                                  VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Diagnostic Logging & Retention Settings -->
+            <Border Style="{StaticResource CardStandard}" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="LOGGING, DIAGNOSTICS &amp; RETENTION" Style="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,12"/>
+
+                    <!-- Log Verbosity -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="260" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Minimum Diagnostic Level" Style="{StaticResource TextBodyStrong}"/>
+                            <TextBlock Text="Minimum severity captured in active log sink" Style="{StaticResource TextCaption}"/>
+                        </StackPanel>
+                        <ComboBox Grid.Column="1"
+                                  Width="200"
+                                  HorizontalAlignment="Left"
+                                  ItemsSource="{Binding AvailableLogLevels}"
+                                  SelectedItem="{Binding SelectedLogLevel, Mode=TwoWay}"
+                                  Style="{StaticResource InputComboBox}" />
+                    </Grid>
+
+                    <!-- Log Retention Days -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="260" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Log Retention Policy" Style="{StaticResource TextBodyStrong}"/>
+                            <TextBlock Text="Number of days activity logs remain before archiving" Style="{StaticResource TextCaption}"/>
+                        </StackPanel>
+                        <ComboBox Grid.Column="1"
+                                  Width="200"
+                                  HorizontalAlignment="Left"
+                                  ItemsSource="{Binding AvailableRetentionDays}"
+                                  SelectedItem="{Binding LogRetentionDays, Mode=TwoWay}"
+                                  Style="{StaticResource InputComboBox}" />
+                    </Grid>
+
+                    <!-- Application Diagnostics -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="260" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Application Telemetry" Style="{StaticResource TextBodyStrong}"/>
+                            <TextBlock Text="Capture process and GC telemetry in system logs" Style="{StaticResource TextCaption}"/>
+                        </StackPanel>
+                        <CheckBox Grid.Column="1"
+                                  Content="Enable Detailed Diagnostics"
+                                  IsChecked="{Binding EnableDetailedDiagnostics, Mode=TwoWay}"
+                                  VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Save Action Button -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
+                <Button Content="Save Platform Settings"
+                        Command="{Binding SaveSettingsCommand}"
+                        Style="{StaticResource ButtonPrimary}"
+                        Width="200" />
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

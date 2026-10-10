@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Product & Assembly Metadata -->
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <InformationalVersion>1.0.0-rc1+simulated</InformationalVersion>
+    <Authors>Nexus Device Service Team</Authors>
+    <Company>Nexus Diagnostics Lab</Company>
+    <Product>Nexus Device Service</Product>
+    <Copyright>Copyright © 2026 Nexus Diagnostics Lab. All rights reserved.</Copyright>
+    <PackageDescription>Windows Diagnostic and Firmware Orchestration Desktop Application (Simulation and Virtual Environment)</PackageDescription>
+    <NeutralLanguage>en-US</NeutralLanguage>
+  </PropertyGroup>
+</Project>

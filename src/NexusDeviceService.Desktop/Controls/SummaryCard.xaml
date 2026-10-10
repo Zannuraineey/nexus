@@ -1,0 +1,72 @@
+<UserControl x:Class="NexusDeviceService.Desktop.Controls.SummaryCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="120" d:DesignWidth="240">
+
+    <Border Style="{StaticResource CardStandard}" Padding="16,14">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Row 0: Title and Optional Badge -->
+            <TextBlock Grid.Row="0" Grid.Column="0"
+                       Text="{Binding Title, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       FontSize="11"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource BrushTextMuted}"
+                       Margin="0,0,6,0"
+                       VerticalAlignment="Center"/>
+
+            <Border x:Name="badgeBorder"
+                    Grid.Row="0" Grid.Column="1"
+                    Background="{Binding BadgeBackground, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                    BorderBrush="{Binding BadgeBrush, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource RadiusPill}"
+                    Padding="5,1"
+                    VerticalAlignment="Center">
+                <TextBlock Text="{Binding BadgeText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                           Foreground="{Binding BadgeBrush, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                           FontSize="9"
+                           FontWeight="SemiBold"/>
+            </Border>
+
+            <!-- Row 1: Large Metric Value & Icon -->
+            <TextBlock Grid.Row="1" Grid.Column="0"
+                       Text="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Foreground="{Binding ValueBrush, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       Margin="0,6,0,2"
+                       TextTrimming="CharacterEllipsis"
+                       VerticalAlignment="Center"/>
+
+            <Path x:Name="iconPath"
+                  Grid.Row="1" Grid.Column="1"
+                  Data="{Binding IconGeometry, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                  Fill="{Binding IconBrush, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                  Width="22" Height="22"
+                  Stretch="Uniform"
+                  VerticalAlignment="Center"
+                  Opacity="0.85"/>
+
+            <!-- Row 2: Subtext / Description -->
+            <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                       Text="{Binding Subtext, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       Style="{StaticResource TextCaption}"
+                       Foreground="{DynamicResource BrushTextMuted}"
+                       TextTrimming="CharacterEllipsis"
+                       Margin="0,2,0,0"/>
+        </Grid>
+    </Border>
+</UserControl>

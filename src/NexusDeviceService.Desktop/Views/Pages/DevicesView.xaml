@@ -1,0 +1,609 @@
+<UserControl x:Class="NexusDeviceService.Desktop.Views.Pages.DevicesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:NexusDeviceService.Desktop.ViewModels.Pages"
+             xmlns:ctrl="clr-namespace:NexusDeviceService.Desktop.Controls"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:DevicesViewModel}">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <!-- 1. Header & Search / Filter Toolbar -->
+            <RowDefinition Height="Auto" />
+            <!-- 2. Loading / Error Indicators -->
+            <RowDefinition Height="Auto" />
+            <!-- 3. Main Split View: Device List (Left) + Device Details (Right) -->
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Top Header & Filter Toolbar -->
+        <Border Grid.Row="0" Style="{StaticResource CardStandard}" Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Title & Status -->
+                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
+                    <TextBlock Text="Device Workspace &amp; Hardware Matrix" Style="{StaticResource TextSectionTitle}"/>
+                    <TextBlock Text="{Binding StatusFeedback}" Style="{StaticResource TextCaption}" Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <!-- Search and Interface Filter -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,16,0">
+                    <!-- Search Input -->
+                    <Grid Width="220" Margin="0,0,8,0">
+                        <TextBox Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                 ToolTip="Filter by model, chipset, port, or serial number" />
+                        <TextBlock Text="Search devices..."
+                                   Foreground="{DynamicResource BrushTextMuted}"
+                                   IsHitTestVisible="False"
+                                   VerticalAlignment="Center"
+                                   Margin="10,0,0,0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource TextCaption}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SearchQuery}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding SearchQuery}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+
+                    <!-- Interface Selector -->
+                    <ComboBox Width="160"
+                              ItemsSource="{Binding InterfaceFilterOptions}"
+                              SelectedItem="{Binding SelectedInterfaceFilter}"
+                              Margin="0,0,8,0" />
+
+                    <!-- Clear Filter -->
+                    <Button Content="Clear"
+                            Command="{Binding ClearFilterCommand}"
+                            Style="{StaticResource ButtonSecondary}"
+                            Height="34"
+                            Padding="10,0" />
+                </StackPanel>
+
+                <!-- Refresh / Cancel Actions -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Command="{Binding RefreshDevicesCommand}"
+                            Style="{StaticResource ButtonPrimary}"
+                            ToolTip="Scan for connected physical &amp; virtual devices">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource GeometryRefresh}"
+                                  Fill="{DynamicResource BrushAccentText}"
+                                  Width="13" Height="13"
+                                  Stretch="Uniform"
+                                  Margin="0,0,6,0"
+                                  VerticalAlignment="Center"/>
+                            <TextBlock Text="Scan Hardware" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding CancelScanCommand}"
+                            Content="Cancel"
+                            Style="{StaticResource ButtonSecondary}"
+                            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}"
+                            Margin="8,0,0,0" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Loading / Error State Banner -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,16">
+            <!-- Loading Indicator -->
+            <ProgressBar IsIndeterminate="True"
+                         Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}"
+                         Height="4"
+                         Margin="0,0,0,8" />
+
+            <!-- Error Banner -->
+            <Border Background="{DynamicResource BrushStatusErrorBg}"
+                    BorderBrush="{DynamicResource BrushStatusError}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource RadiusMedium}"
+                    Padding="14,10"
+                    Margin="0,0,0,8">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Visible" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ErrorMessage}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding ErrorMessage}" Value="">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel Orientation="Horizontal">
+                    <Path Data="{StaticResource GeometryAlertCircle}"
+                          Fill="{DynamicResource BrushStatusError}"
+                          Width="16" Height="16"
+                          Stretch="Uniform"
+                          Margin="0,0,10,0"
+                          VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               Foreground="#FFFFFF"
+                               Style="{StaticResource TextBodyStrong}"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- Main Content Area: Device List + Details Panel -->
+        <Grid Grid.Row="2">
+            <!-- Case 1: Empty State (Zero Devices Connected / Match Filter) -->
+            <ctrl:StateView Title="No Devices Discovered"
+                            Description="No mobile devices or modems were detected matching the current criteria. Ensure your device is attached or verify the virtual simulation driver is enabled."
+                            IconGeometry="{StaticResource GeometryUsb}"
+                            IconBrush="{DynamicResource BrushTextMuted}"
+                            ActionText="Rescan Hardware"
+                            ActionCommand="{Binding RefreshDevicesCommand}">
+                <ctrl:StateView.Style>
+                    <Style TargetType="ctrl:StateView">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasNoDevices}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ctrl:StateView.Style>
+            </ctrl:StateView>
+
+            <!-- Case 2: One or Multiple Devices Detected -->
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Visible" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasNoDevices}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <Grid.ColumnDefinitions>
+                    <!-- Left: Device Discovery Matrix List -->
+                    <ColumnDefinition Width="360" MinWidth="300" MaxWidth="440" />
+                    <!-- Right: Selected Device Details Panel -->
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Connected Devices List -->
+                <Border Grid.Column="0" Style="{StaticResource CardStandard}" Margin="0,0,12,0">
+                    <DockPanel LastChildFill="True">
+                        <!-- List Header -->
+                        <Border DockPanel.Dock="Top" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="CONNECTED CHANNELS"
+                                           Style="{StaticResource TextCaption}"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource BrushTextMuted}"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding FilteredDevices.Count, StringFormat='{}{0} Available'}"
+                                           Style="{StaticResource TextCaption}"
+                                           Foreground="{DynamicResource BrushAccent}"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Device Items ListBox -->
+                        <ListBox ItemsSource="{Binding FilteredDevices}"
+                                 SelectedItem="{Binding SelectedDevice, Mode=TwoWay}"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource BrushSurfaceElevated}"
+                                            BorderBrush="{DynamicResource BrushSurfaceBorderSubtle}"
+                                            BorderThickness="1"
+                                            CornerRadius="{StaticResource RadiusMedium}"
+                                            Padding="12,10"
+                                            Margin="0,0,0,6">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Model / Name -->
+                                            <TextBlock Grid.Row="0" Grid.Column="0"
+                                                       Text="{Binding DisplayName}"
+                                                       Style="{StaticResource TextBodyStrong}"
+                                                       TextTrimming="CharacterEllipsis" />
+
+                                            <!-- Interface Badge -->
+                                            <Border Grid.Row="0" Grid.Column="1"
+                                                    Style="{StaticResource BadgeNeutral}">
+                                                <TextBlock Text="{Binding InterfaceType}" FontSize="10"/>
+                                            </Border>
+
+                                            <!-- Port / Serial Subtext -->
+                                            <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,3,0,4">
+                                                <TextBlock Text="{Binding Identifier.PortName, TargetNullValue='USB Port'}"
+                                                           Style="{StaticResource TextMonospace}"
+                                                           Foreground="{DynamicResource BrushAccent}"
+                                                           FontWeight="SemiBold"
+                                                           Margin="0,0,8,0" />
+                                                <TextBlock Text="{Binding Identifier.SerialNumber}"
+                                                           Style="{StaticResource TextMonospace}"
+                                                           Foreground="{DynamicResource BrushTextMuted}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+
+                                            <!-- Chipset & Simulation Indicator -->
+                                            <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
+                                                <TextBlock Text="{Binding ChipsetFamily, TargetNullValue='Unknown Chipset'}"
+                                                           Style="{StaticResource TextCaption}"/>
+                                            </StackPanel>
+
+                                            <!-- Simulation Tag if Virtual -->
+                                            <Border Grid.Row="2" Grid.Column="1">
+                                                <Border.Style>
+                                                    <Style TargetType="Border" BasedOn="{StaticResource BadgeSimulation}">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsSimulation}" Value="False">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <TextBlock Text="SIMULATED" FontSize="9"/>
+                                            </Border>
+
+                                            <!-- Physical Tag if Hardware -->
+                                            <Border Grid.Row="2" Grid.Column="1">
+                                                <Border.Style>
+                                                    <Style TargetType="Border" BasedOn="{StaticResource BadgeInfo}">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsSimulation}" Value="False">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <TextBlock Text="PHYSICAL" FontSize="9"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
+                </Border>
+
+                <!-- Right: Device Details Panel -->
+                <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <!-- Device Identity & Overview Card -->
+                        <Border Style="{StaticResource CardStandard}" Margin="0,0,0,16">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,12">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Device Title & Provider Subtitle -->
+                                    <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                                        <TextBlock Text="{Binding SelectedDevice.DisplayName, TargetNullValue='No Device Selected'}" Style="{StaticResource TextHeader}" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding SelectedDevice.ProviderId, StringFormat='Discovery Provider: {0}'}" Style="{StaticResource TextCaption}" Margin="0,2,0,0"/>
+                                    </StackPanel>
+
+                                    <!-- Status Badges Strip in WrapPanel so they wrap cleanly without clipping or pushing -->
+                                    <WrapPanel Grid.Row="1" Orientation="Horizontal">
+                                        <!-- Physical vs Simulation Badge -->
+                                        <Border Style="{StaticResource BadgeInfo}" Margin="0,0,8,6"
+                                                Visibility="{Binding IsPhysical, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="PHYSICAL USB" />
+                                        </Border>
+                                        <Border Style="{StaticResource BadgeSimulation}" Margin="0,0,8,6"
+                                                Visibility="{Binding IsSimulation, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="VIRTUAL SIMULATION" />
+                                        </Border>
+
+                                        <!-- Interface Availability Badge -->
+                                        <Border Style="{StaticResource BadgeSuccess}" Margin="0,0,8,6"
+                                                Visibility="{Binding IsModemInfoAvailable, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="INFO AVAILABLE" />
+                                        </Border>
+                                        <Border Style="{StaticResource BadgeWarning}" Margin="0,0,8,6"
+                                                Visibility="{Binding IsModemInterfaceUnavailable, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="MODEM INTERFACE UNAVAILABLE" />
+                                        </Border>
+
+                                        <!-- Lock Status Badge -->
+                                        <Border Style="{StaticResource BadgeNeutral}" Margin="0,0,8,6">
+                                            <TextBlock Text="{Binding LockStatusText, StringFormat='SIM LOCK: {0}'}" />
+                                        </Border>
+                                    </WrapPanel>
+                                </Grid>
+
+                                <!-- Notice Banner: Modem Interface Unavailable -->
+                                <Border Background="{DynamicResource BrushSurfaceElevated}"
+                                        BorderBrush="{DynamicResource BrushStatusWarning}"
+                                        BorderThickness="1"
+                                        CornerRadius="{StaticResource RadiusMedium}"
+                                        Padding="14,10"
+                                        Margin="0,0,0,12"
+                                        Visibility="{Binding IsModemInterfaceUnavailable, Converter={StaticResource BoolToVis}}">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                            <Path Data="{StaticResource GeometryAlertCircle}"
+                                                  Fill="{DynamicResource BrushStatusWarning}"
+                                                  Width="15" Height="15"
+                                                  Stretch="Uniform"
+                                                  Margin="0,0,8,0"
+                                                  VerticalAlignment="Center"/>
+                                            <TextBlock Text="Device detected — modem information interface unavailable."
+                                                       Style="{StaticResource TextBodyStrong}"
+                                                       Foreground="{DynamicResource BrushStatusWarning}"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding SelectedDeviceInfo.TechnicalDetails, TargetNullValue='The physical device was detected on the USB bus, but exposes only RNDIS and Mass Storage interfaces without a virtual COM port or responding management endpoint. Low-level writes and IMEI reading are kept disabled.'}"
+                                                   Style="{StaticResource TextCaption}"
+                                                   Foreground="{DynamicResource BrushTextMuted}"
+                                                   TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Hardware Fields Grid -->
+                                <Border Background="{DynamicResource BrushSurfaceElevated}"
+                                        BorderBrush="{DynamicResource BrushSurfaceBorderSubtle}"
+                                        BorderThickness="1"
+                                        CornerRadius="{StaticResource RadiusMedium}"
+                                        Padding="14">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" MinWidth="120" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="20" />
+                                            <ColumnDefinition Width="Auto" MinWidth="130" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Manufacturer -->
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Manufacturer:" Style="{StaticResource TextCaption}" Margin="0,4,8,4"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedDevice.Manufacturer, TargetNullValue='Generic / Undefined'}" Style="{StaticResource TextBodyStrong}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" Margin="0,4"/>
+
+                                        <!-- Model -->
+                                        <TextBlock Grid.Row="0" Grid.Column="3" Text="Device Model:" Style="{StaticResource TextCaption}" Margin="0,4,8,4"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="4" Text="{Binding SelectedDevice.Model, TargetNullValue='Generic Model'}" Style="{StaticResource TextBodyStrong}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" Margin="0,4"/>
+
+                                        <!-- Hardware ID / VID:PID -->
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="USB VID : PID:" Style="{StaticResource TextCaption}" Margin="0,4,8,4"/>
+                                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,4">
+                                            <TextBlock Text="{Binding SelectedDevice.Identifier.VendorId}" Style="{StaticResource TextMonospace}" FontWeight="SemiBold" Foreground="{DynamicResource BrushAccent}"/>
+                                            <TextBlock Text=" : " Style="{StaticResource TextMonospace}"/>
+                                            <TextBlock Text="{Binding SelectedDevice.Identifier.ProductId}" Style="{StaticResource TextMonospace}" FontWeight="SemiBold" Foreground="{DynamicResource BrushAccent}"/>
+                                        </StackPanel>
+
+                                        <!-- Hardware Revision -->
+                                        <TextBlock Grid.Row="1" Grid.Column="3" Text="Hardware Revision:" Style="{StaticResource TextCaption}" Margin="0,4,8,4"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="4" Text="{Binding SelectedDevice.HardwareRevision, TargetNullValue='N/A'}" Style="{StaticResource TextMonospace}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" Margin="0,4"/>
+
+                                        <!-- Firmware Version -->
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Firmware Version:" Style="{StaticResource TextCaption}" Margin="0,4,8,4"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedDeviceInfo.FirmwareVersion, TargetNullValue='Unavailable (Interface offline)'}" Style="{StaticResource TextMonospace}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" Margin="0,4"/>
+
+                                        <!-- Communication Port -->
+                                        <TextBlock Grid.Row="2" Grid.Column="3" Text="Modem Comm Port:" Style="{StaticResource TextCaption}" Margin="0,4,8,4"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="4" Text="{Binding SelectedDevice.Identifier.PortName, TargetNullValue='No Virtual COM Port'}" Style="{StaticResource TextMonospace}" Foreground="{DynamicResource BrushAccent}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" Margin="0,4"/>
+
+                                        <!-- IMEI / Masked Identifier -->
+                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="IMEI (Protected):" Style="{StaticResource TextCaption}" Margin="0,4,8,4"/>
+                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedDeviceInfo.MaskedImei, TargetNullValue='Unavailable (Interface offline)'}" Style="{StaticResource TextMonospace}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" Margin="0,4"/>
+
+                                        <!-- Network Lock Status -->
+                                        <TextBlock Grid.Row="3" Grid.Column="3" Text="Network Lock Status:" Style="{StaticResource TextCaption}" Margin="0,4,8,4"/>
+                                        <TextBlock Grid.Row="3" Grid.Column="4" Text="{Binding LockStatusText}" Style="{StaticResource TextBodyStrong}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" Margin="0,4"/>
+
+                                        <!-- USB Bus Description -->
+                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="PnP Bus Description:" Style="{StaticResource TextCaption}" Margin="0,4,8,4"/>
+                                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedDevice.Description, TargetNullValue='USB Composite Device'}" Style="{StaticResource TextCaption}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" Margin="0,4"/>
+
+                                        <!-- Detection Timestamp -->
+                                        <TextBlock Grid.Row="4" Grid.Column="3" Text="Enumerated At:" Style="{StaticResource TextCaption}" Margin="0,4,8,4"/>
+                                        <TextBlock Grid.Row="4" Grid.Column="4" Text="{Binding SelectedDevice.DetectionTimestamp, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss} UTC'}" Style="{StaticResource TextCaption}" TextTrimming="CharacterEllipsis" Margin="0,4"/>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Dedicated Carrier SIM Unlock Workflow Card -->
+                        <Border Style="{StaticResource CardStandard}" Margin="0,0,0,16">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="CARRIER SIM UNLOCK WORKFLOW"
+                                                   Style="{StaticResource TextCaption}"
+                                                   FontWeight="Bold"
+                                                   Foreground="{DynamicResource BrushTextMuted}"/>
+                                        <TextBlock Text="Enter authorized Network Control Key (NCK) issued by original service provider."
+                                                   Style="{StaticResource TextCaption}"
+                                                   Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="Attempts Remaining: " Style="{StaticResource TextCaption}"/>
+                                        <TextBlock Text="{Binding RemainingAttemptsText}" Style="{StaticResource TextMonospace}" FontWeight="Bold" Foreground="{DynamicResource BrushAccent}"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Warning Box -->
+                                <Border Background="{DynamicResource BrushSurfaceElevated}"
+                                        BorderBrush="{DynamicResource BrushSurfaceBorderSubtle}"
+                                        BorderThickness="1"
+                                        CornerRadius="{StaticResource RadiusSmall}"
+                                        Padding="10,8"
+                                        Margin="0,0,0,10">
+                                    <TextBlock Text="Caution: Entering an invalid unlock code decrements the device's hardware retry counter. Nexus Device Service strictly requires legitimate carrier codes and never guesses or brute-forces attempts."
+                                               Style="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource BrushTextMuted}"
+                                               TextWrapping="Wrap"/>
+                                </Border>
+
+                                <!-- Code Entry & Submission -->
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox Text="{Binding CarrierUnlockCode, UpdateSourceTrigger=PropertyChanged}"
+                                             IsEnabled="{Binding CanEnterUnlockCode}"
+                                             Height="36"
+                                             Margin="0,0,8,0"
+                                             FontFamily="Consolas"
+                                             FontSize="14"
+                                             Padding="8,6"
+                                             ToolTip="Enter 8-16 digit carrier unlock code" />
+
+                                    <Button Grid.Column="1"
+                                            Command="{Binding ApplyCarrierUnlockCodeCommand}"
+                                            IsEnabled="{Binding CanEnterUnlockCode}"
+                                            Style="{StaticResource ButtonPrimary}"
+                                            Height="36"
+                                            Padding="16,0"
+                                            Content="Apply Carrier Code" />
+                                </Grid>
+
+                                <!-- Feedback / Progress Banner -->
+                                <TextBlock Text="{Binding UnlockFeedbackMessage}"
+                                           Visibility="{Binding UnlockFeedbackMessage, Converter={StaticResource BoolToVis}}"
+                                           Style="{StaticResource TextBodyStrong}"
+                                           Foreground="{DynamicResource BrushAccent}"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Detected USB Interfaces Matrix -->
+                        <Border Style="{StaticResource CardStandard}" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="DETECTED USB INTERFACES &amp; DRIVER ENDPOINTS"
+                                           Style="{StaticResource TextCaption}"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource BrushTextMuted}"
+                                           Margin="0,0,0,10"/>
+
+                                <ItemsControl ItemsSource="{Binding SelectedDevice.Interfaces}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{DynamicResource BrushSurfaceElevated}"
+                                                    BorderBrush="{DynamicResource BrushSurfaceBorderSubtle}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="{StaticResource RadiusSmall}"
+                                                    Padding="10,8"
+                                                    Margin="0,0,0,6">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="100" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="100" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding InterfaceId}" Style="{StaticResource TextMonospace}" FontWeight="Bold" VerticalAlignment="Center"/>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding FriendlyName, TargetNullValue='Unknown Interface'}" Style="{StaticResource TextBodyStrong}"/>
+                                                        <TextBlock Text="{Binding DriverService, StringFormat='Driver Service: {0}'}" Style="{StaticResource TextCaption}" Foreground="{DynamicResource BrushTextMuted}"/>
+                                                    </StackPanel>
+                                                    <Border Grid.Column="2" Style="{StaticResource BadgeNeutral}" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding InterfaceType}" FontSize="10"/>
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Supported Capabilities Panel -->
+                        <Border Style="{StaticResource CardStandard}" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="SUPPORTED CAPABILITIES (PRE-FLIGHT GATED)"
+                                           Style="{StaticResource TextCaption}"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource BrushTextMuted}"
+                                           Margin="0,0,0,10"/>
+
+                                <ItemsControl ItemsSource="{Binding SelectedDeviceCapabilities}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource BadgeInfo}" Margin="0,0,8,8">
+                                                <TextBlock Text="{Binding}" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Device Session History Placeholder -->
+                        <Border Style="{StaticResource CardStandard}">
+                            <StackPanel>
+                                <TextBlock Text="DEVICE INTERROGATION AUDIT TRAIL"
+                                           Style="{StaticResource TextCaption}"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource BrushTextMuted}"
+                                           Margin="0,0,0,10"/>
+
+                                <DataGrid ItemsSource="{Binding SelectedDeviceHistory}"
+                                          Height="120">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="TIMESTAMP" Binding="{Binding Timestamp}" Width="120" />
+                                        <DataGridTextColumn Header="ACTION" Binding="{Binding Action}" Width="180" />
+                                        <DataGridTextColumn Header="STATUS" Binding="{Binding Status}" Width="100" />
+                                        <DataGridTextColumn Header="DISPATCHER" Binding="{Binding Operator}" Width="*" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>
